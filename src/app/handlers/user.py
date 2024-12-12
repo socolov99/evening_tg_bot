@@ -22,15 +22,12 @@ async def cmd_start(message: Message):
 @user_router.message(F.text == "Я выпил")
 async def user_drink(message: Message):
     await set_user(message.from_user.id, message.from_user.username)
-    await message.answer("Выбери дату:", reply_markup=await DialogCalendar(
-        locale=await get_user_locale(message.from_user)).start_calendar())
+    await message.answer("Выбери дату:", reply_markup=await DialogCalendar(locale="ru_RU").start_calendar())
 
 
 @user_router.callback_query(DialogCalendarCallback.filter())
 async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
-    selected, date = await DialogCalendar(
-        locale=await get_user_locale(callback_query.from_user)
-    ).process_selection(callback_query, callback_data)
+    selected, date = await DialogCalendar(locale="ru_RU").process_selection(callback_query, callback_data)
     if selected:
         user = await get_user(callback_query.from_user.id)
         await add_user_drink(user.id, date)

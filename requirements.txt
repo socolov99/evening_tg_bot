@@ -3,3 +3,4 @@ psycopg2-binary==2.9.10
 asyncpg==0.30.0
 SQLAlchemy==2.0.36
 python-dotenv==1.0.1
+aiogram-calendar==0.5.0

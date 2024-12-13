@@ -16,10 +16,10 @@ async def cmd_start(message: Message):
     await message.answer(f"Привет {message.from_user.username} !", reply_markup=kb.main)
 
 
-@user_router.message(F.text == "Я выпил")
-async def user_drink(message: Message):
-    await set_user(message.from_user.id, message.from_user.username)
-    await message.answer("Выбери дату:", reply_markup=await DialogCalendar().start_calendar())
+@user_router.callback_query(F.data == "add_frink_info")
+async def user_drink(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
+    await callback_query.message.answer("Выбери дату:", reply_markup=await DialogCalendar().start_calendar())
 
 
 @user_router.callback_query(DialogCalendarCallback.filter())
@@ -30,21 +30,19 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
         if selected_date <= datetime.now():
             await add_user_drink(user.id, selected_date)
             answer_text = (
-                "Сюююююююда!!! Правильно, сегодня отдыхаем" if selected_date.strftime(
-                    '%Y-%m-%d') == datetime.now().strftime('%Y-%m-%d')
+                "Сюююююююда!!! Правильно, сегодня отдыхаем"
+                if selected_date.strftime('%Y-%m-%d') == datetime.now().strftime('%Y-%m-%d')
                 else "Одобряю твой поступок"
             )
-            await callback_query.message.answer(answer_text, reply_markup=kb.main)
         else:
-            await callback_query.message.answer(
-                "Я так понимаю ты рассказал мне о своих планах, но все же выбери уже наступившую дату",
-                reply_markup=kb.main)
+            answer_text = "Я так понимаю ты рассказал мне о своих планах, но все же выбери уже наступившую дату"
+        await callback_query.message.answer(answer_text, reply_markup=kb.main)
 
 
-@user_router.message(F.text == "Моя статистика")
-async def mystats_handler(message: Message):
-    await set_user(message.from_user.id, message.from_user.username)
-    user = await get_user(message.from_user.id)
+@user_router.callback_query(F.data == "show_my_stats")
+async def mystats_handler(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
+    user = await get_user(callback_query.from_user.id)
     drinks = await get_user_drinks(user.id)
     drink_unique_days_list = list(set([drink.action_dt.strftime('%Y-%m-%d') for drink in list(drinks)]))
     if len(drink_unique_days_list) > 0:
@@ -53,12 +51,12 @@ async def mystats_handler(message: Message):
             message_text += f"{drink_day}\n"
     else:
         message_text = 'Я не знаю когда ты пил... Пора это исправлять.\nКогда выпьешь, нажми на кнопку "Я выпил"'
-    await message.answer(message_text)
+    await callback_query.message.answer(message_text, reply_markup=kb.main)
 
 
-@user_router.message(F.text == "Лидерборд")
-async def stats_handler(message: Message):
-    await set_user(message.from_user.id, message.from_user.username)
+@user_router.callback_query(F.data == "show_leaderboard")
+async def stats_handler(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
     stats = await get_drink_board()
     stats_list = list(stats)
     if len(stats_list) > 0:
@@ -83,4 +81,4 @@ async def stats_handler(message: Message):
         message_text += f"\n\n{stats_list[-1].user_name} занимается ерундой, пора выпить..."
     else:
         message_text = "Я пока не собрал статистику. Пьем активнее !"
-    await message.answer(message_text)
+    await callback_query.message.answer(message_text, reply_markup=kb.main)

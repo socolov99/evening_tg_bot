@@ -7,15 +7,15 @@ from sqlalchemy.schema import CreateSchema
 
 load_dotenv()
 
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_DATABASE = os.getenv("DB_DATABASE")
+DB_USER: str | None = os.getenv("DB_USER")
+DB_PASSWORD: str | None = os.getenv("DB_PASSWORD")
+DB_HOST: str | None = os.getenv("DB_HOST")
+DB_PORT: str | None = os.getenv("DB_PORT")
+DB_DATABASE: str | None = os.getenv("DB_DATABASE")
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+DATABASE_URL: str = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+SCHEMA_NAME: str = "evening_tg"
 
-SCHEMA_NAME = "evening_tg"
 engine = create_async_engine(url=DATABASE_URL, echo=True)
 
 async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)

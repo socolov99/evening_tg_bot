@@ -1,12 +1,12 @@
 from src.database.models import async_session
 from src.database.models import User, Action
-from sqlalchemy import select, update, delete, desc, text, func
+from sqlalchemy import select, desc, func
 
 
-def connection(func):
+def connection(function):
     async def inner(*args, **kwargs):
         async with async_session() as session:
-            return await func(session, *args, **kwargs)
+            return await function(session, *args, **kwargs)
 
     return inner
 

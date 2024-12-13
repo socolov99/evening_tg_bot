@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback, get_user_locale
-
+from datetime import date
 import src.app.keyboards.kb as kb
 from src.database.requests import (set_user, get_user, add_user_drink, get_user_drinks, get_drink_board)
 
@@ -30,8 +30,11 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
     selected, date = await DialogCalendar().process_selection(callback_query, callback_data)
     if selected:
         user = await get_user(callback_query.from_user.id)
-        await add_user_drink(user.id, date)
-        await callback_query.message.answer("Одобряю твой поступок", reply_markup=kb.main)
+        if date <= date.today():
+            await add_user_drink(user.id, date)
+            await callback_query.message.answer("Одобряю твой поступок", reply_markup=kb.main)
+        else:
+            await callback_query.message.answer("Выбери наступившую дату", reply_markup=kb.main)
 
 
 @user_router.message(F.text == "Моя статистика")
@@ -58,7 +61,7 @@ async def stats_handler(message: Message):
         message_text = "Лидерборд\n-----------------------------------\nПользователь; Крайний раз пил; Дней трезвости\n-----------------------------------\n"
         for index, stats_element in enumerate(stats_list):
             days = stats_element.sober_time.days
-            message_text += f"{index + 1}) {stats_element.tg_name};  {stats_element.last_drink.strftime('%Y-%m-%d')};  {days} дней\n"
+            message_text += f"{index + 1}) {stats_element.user_name};  {stats_element.last_drink.strftime('%Y-%m-%d')};  {days} дней\n"
     else:
         message_text = "Я пока не собрал статистику. Пьем активнее !"
     await message.answer(message_text)

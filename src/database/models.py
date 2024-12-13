@@ -32,7 +32,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id = mapped_column(BigInteger, nullable=False)
     tg_name = mapped_column(String(255))
-    user_full_name = mapped_column(String(255), default="")
+    user_full_name = mapped_column(String(255), nullable=True)
     register_dt = mapped_column(Date, default=func.now(), nullable=False)
     points = mapped_column(BigInteger)
 

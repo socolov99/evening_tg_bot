@@ -45,13 +45,14 @@ async def get_user_drinks(session, user_id):
 async def get_drink_board(session):
     result = await session.execute(
         select(
-            User.tg_name,
+            User.id,
+            func.max(func.coalesce(User.user_full_name, User.tg_name, "Безымянный")).label("user_name"),
             func.max(Action.action_dt).label("last_drink"),
             (func.now() - func.max(Action.action_dt)).label("sober_time")
         )
         .join(Action, User.id == Action.user_id)
         .where(Action.action_type == 'drink')
-        .group_by(User.tg_name)
+        .group_by(User.id)
         .order_by("sober_time")
         .limit(15)
     )

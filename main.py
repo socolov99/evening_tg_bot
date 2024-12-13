@@ -7,6 +7,10 @@ from src.app.handlers.user import user_router
 from src.app.handlers.admin import admin_router
 from src.database.models import async_main
 
+"""
+Telegram-бот для тестирования - @evening_tg_test_bot
+"""
+
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")

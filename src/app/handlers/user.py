@@ -46,7 +46,7 @@ async def mystats_handler(callback_query: CallbackQuery):
     drinks = await get_user_drinks(user.id)
     drink_unique_days_list = list(set([drink.action_dt.strftime('%Y-%m-%d') for drink in list(drinks)]))
     if len(drink_unique_days_list) > 0:
-        message_text = f"{user.user_name}, ты пил в эти даты:\n-----------------------------------\n"
+        message_text = f"{user.user_full_name}, ты пил в эти даты:\n-----------------------------------\n"
         for drink_day in drink_unique_days_list:
             message_text += f"{drink_day}\n"
     else:

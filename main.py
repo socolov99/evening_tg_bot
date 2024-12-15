@@ -2,18 +2,25 @@ import os
 import asyncio
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime
 
 from src.app.handlers.user import user_router
 from src.app.handlers.admin import admin_router
 from src.database.models import async_main
-
-"""
-Telegram-бот для тестирования - @evening_tg_test_bot
-"""
+from src.app.schedulers import message_sending
 
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
+EVENING_CHAT_ID = os.getenv("EVENING_CHAT_ID")
+
+
+def start_scheduler(bot: Bot):
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=10, minute=0,
+                      start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
+    scheduler.start()
 
 
 async def on_startup(dispatcher: Dispatcher):
@@ -23,6 +30,7 @@ async def on_startup(dispatcher: Dispatcher):
 async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
+    start_scheduler(bot)
     dp.include_routers(user_router, admin_router)
     dp.startup.register(on_startup)
     await dp.start_polling(bot)

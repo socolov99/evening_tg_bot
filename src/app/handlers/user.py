@@ -13,7 +13,9 @@ user_router = Router()
 @user_router.message(CommandStart())
 async def cmd_start(message: Message):
     await set_user(message.from_user.id, message.from_user.username)
-    await message.answer(f"Привет {message.from_user.username} !", reply_markup=kb.main)
+    user = await get_user(message.from_user.id)
+    request_user_name = user.user_full_name if user.user_full_name is not None else user.tg_name
+    await message.answer(f"Привет {request_user_name} !", reply_markup=kb.main)
 
 
 @user_router.callback_query(F.data == "add_frink_info")

@@ -4,8 +4,25 @@ from aiogram.filters import CommandStart
 from aiogram.filters.callback_data import CallbackData
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
 from datetime import datetime
+import calendar
 import src.app.keyboards.kb as kb
-from src.database.requests import (set_user, get_user, add_user_drink, get_user_drinks, get_drink_board)
+from src.database.requests import (set_user, get_user, add_user_drink, get_user_drinks, get_drink_board,
+                                   get_month_drink_stats)
+
+MONTH_NAMES_DICT = {
+    1: "Январь",
+    2: "Февраль",
+    3: "Март",
+    4: "Апрель",
+    5: "Май",
+    6: "Июнь",
+    7: "Июль",
+    8: "Август",
+    9: "Сентябрь",
+    10: "Октябрь",
+    11: "Ноябрь",
+    12: "Декабрь"
+}
 
 user_router = Router()
 
@@ -83,4 +100,22 @@ async def stats_handler(callback_query: CallbackQuery):
         message_text += f"\n\n{stats_list[-1].user_name} занимается ерундой, пора выпить..."
     else:
         message_text = "Я пока не собрал статистику. Пьем активнее !"
+    await callback_query.message.answer(message_text, reply_markup=kb.main)
+
+
+@user_router.callback_query(F.data == "show_month_stats")
+async def month_stats_handler(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
+    now = datetime.now()
+    month_number = now.month
+    month_name = MONTH_NAMES_DICT.get(month_number)
+    month_days_qty = calendar.monthrange(now.year, month_number)[1]
+    month_stats = await get_month_drink_stats()
+    month_stats_list = list(month_stats)
+    if len(month_stats_list) > 0:
+        message_text = f"Статистика за {month_name} \n-----------------------------------\nПользователь; дней пил; %\n-----------------------------------\n"
+        for index, month_stats_element in enumerate(month_stats_list):
+            message_text += f"{index + 1}) {month_stats_element.user_name}; {month_stats_element.drink_days_qty} / {month_days_qty}; {round(100 * month_stats_element.drink_days_qty / month_days_qty)} % \n"
+    else:
+        message_text = "Нет информации о пользователях"
     await callback_query.message.answer(message_text, reply_markup=kb.main)

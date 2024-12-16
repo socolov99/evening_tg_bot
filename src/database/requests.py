@@ -1,6 +1,6 @@
 from src.database.models import async_session
 from src.database.models import User, Action
-from sqlalchemy import select, desc, func
+from sqlalchemy import select, desc, func, extract
 
 
 def connection(function):
@@ -55,6 +55,32 @@ async def get_drink_board(session):
         .where(Action.action_type == 'drink')
         .group_by(User.id)
         .order_by("sober_time", desc("action_reg_dt"))
+        .limit(30)
+    )
+    return result
+
+
+@connection
+async def get_month_drink_stats(session):
+    month_actions = (
+        select(
+            Action.user_id, Action.action_dt
+        )
+        .filter(Action.action_type == 'drink',
+                extract('month', Action.action_dt) == extract('month', func.now()),
+                extract('year', Action.action_dt) == extract('year', func.now()))
+        .subquery()
+    )
+
+    result = await session.execute(
+        select(
+            User.id,
+            func.max(func.coalesce(User.user_full_name, User.tg_name, "Безымянный")).label("user_name"),
+            func.count(func.distinct(month_actions.c.action_dt)).label("drink_days_qty")
+        )
+        .join(month_actions, User.id == month_actions.c.user_id, isouter=True)
+        .group_by(User.id)
+        .order_by(desc("drink_days_qty"))
         .limit(30)
     )
     return result

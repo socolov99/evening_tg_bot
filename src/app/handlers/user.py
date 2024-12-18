@@ -63,7 +63,7 @@ async def mystats_handler(callback_query: CallbackQuery):
     await set_user(callback_query.from_user.id, callback_query.from_user.username)
     user = await get_user(callback_query.from_user.id)
     drinks = await get_user_drinks(user.id)
-    drink_unique_days_list = list(set([drink.action_dt.strftime('%Y-%m-%d') for drink in list(drinks)]))
+    drink_unique_days_list = list([drink.action_dt.strftime('%Y-%m-%d') for drink in list(drinks)])
     if len(drink_unique_days_list) > 0:
         message_text = f"{user.user_full_name}, ты пил в эти даты:\n-----------------------------------\n"
         for drink_day in drink_unique_days_list:
@@ -73,21 +73,21 @@ async def mystats_handler(callback_query: CallbackQuery):
     await callback_query.message.answer(message_text, reply_markup=kb.main)
 
 
-@user_router.callback_query(F.data == "show_leaderboard")
-async def stats_handler(callback_query: CallbackQuery):
+@user_router.callback_query(F.data == "show_sober_period_stats")
+async def sober_stats_handler(callback_query: CallbackQuery):
     await set_user(callback_query.from_user.id, callback_query.from_user.username)
     stats = await get_drink_board()
     stats_list = list(stats)
     if len(stats_list) > 0:
         drunk_today_users_list = []
-        message_text = "Лидерборд\n-----------------------------------\nПользователь; Крайний раз пил; Дней трезвости\n-----------------------------------\n"
+        message_text = "Срок трезвости\n-----------------------------------\nПользователь; Крайний раз пил; Дней трезвости\n-----------------------------------\n"
         for index, stats_element in enumerate(stats_list):
             days = stats_element.sober_time.days
             if days == 0:
                 drunk_today_users_list.append(stats_element.user_name)
-            message_text += f"{index + 1}) {stats_element.user_name};  {stats_element.last_drink.strftime('%Y-%m-%d')};  {days} дней\n"
-        drunk_today_users_qty = len(drunk_today_users_list)
+            message_text += f"{index + 1}) {stats_element.user_name};  {stats_element.last_drink.strftime('%Y-%m-%d')};  {days} дн.\n"
         message_text += "-----------------------------------"
+        drunk_today_users_qty = len(drunk_today_users_list)
         if drunk_today_users_qty > 0:
             message_suffix_you = "ты"
             message_suffix_i = ""
@@ -108,14 +108,15 @@ async def month_stats_handler(callback_query: CallbackQuery):
     await set_user(callback_query.from_user.id, callback_query.from_user.username)
     now = datetime.now()
     month_number = now.month
+    month_day = now.day
     month_name = MONTH_NAMES_DICT.get(month_number)
     month_days_qty = calendar.monthrange(now.year, month_number)[1]
     month_stats = await get_month_drink_stats()
     month_stats_list = list(month_stats)
     if len(month_stats_list) > 0:
-        message_text = f"Статистика за {month_name} \n-----------------------------------\nПользователь; дней пил; %\n-----------------------------------\n"
+        message_text = f"Статистика за {month_name} (за {month_day} дн) \n-----------------------------------\nПользователь; дней пил; %\n-----------------------------------\n"
         for index, month_stats_element in enumerate(month_stats_list):
-            message_text += f"{index + 1}) {month_stats_element.user_name}; {month_stats_element.drink_days_qty} / {month_days_qty}; {round(100 * month_stats_element.drink_days_qty / month_days_qty)} % \n"
+            message_text += f"{index + 1}) {month_stats_element.user_name}; {month_stats_element.drink_days_qty} дн.; {round(100 * month_stats_element.drink_days_qty / month_day)} % \n"
     else:
         message_text = "Нет информации о пользователях"
     await callback_query.message.answer(message_text, reply_markup=kb.main)

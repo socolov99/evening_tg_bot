@@ -13,5 +13,5 @@ main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Я выпил!', callback_data='add_frink_info')],
     [InlineKeyboardButton(text='Моя статистика', callback_data='show_my_stats')],
     [InlineKeyboardButton(text='Месячная статистика', callback_data='show_month_stats')],
-    [InlineKeyboardButton(text='Лидерборд', callback_data='show_leaderboard')]
+    [InlineKeyboardButton(text='Срок трезвости', callback_data='show_sober_period_stats')]
 ])

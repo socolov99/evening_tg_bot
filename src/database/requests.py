@@ -32,11 +32,13 @@ async def add_user_drink(session, user_id, action_dt):
 
 @connection
 async def get_user_drinks(session, user_id):
-    result = await session.scalars(
-        select(Action)
+    result = await session.execute(
+        select(
+            func.distinct(Action.action_dt).label("action_dt")
+        )
         .where(Action.user_id == user_id and Action.action_type == "drink")
-        .order_by(desc(Action.action_dt))
-        .limit(10)
+        .order_by(desc("action_dt"))
+        .limit(15)
     )
     return result
 

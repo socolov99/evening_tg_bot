@@ -30,6 +30,7 @@ async def morning_message_cron(bot: Bot):
     except Exception as e:
         print(f"Ошибка при отправке сообщения в чат: {e}")
 
+
 async def anton_start_working_message_cron(bot: Bot):
     message_text = "Антон, раб ебаный, я надеюсь ты уже в офисе ?! "
     try:
@@ -41,6 +42,10 @@ async def anton_start_working_message_cron(bot: Bot):
 async def new_year_delta_message_cron(bot: Bot):
     days = time_to_new_year().get('days')
     hours = time_to_new_year().get('hours') + 1
+
+    if hours == 24:
+        hours = 0
+        days += 1
 
     message_text = f"До нового года осталось {days} дн., {hours} ч."
     try:

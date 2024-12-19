@@ -19,8 +19,11 @@ ADMIN_TG_ID = os.getenv("ADMIN_TG_ID")
 
 def start_scheduler(bot: Bot):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=10, minute=0,
+    scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=6, minute=15,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
+
+    scheduler.add_job(message_sending.anton_start_working_message_cron, trigger='cron', hour=8, minute=0,
+                      start_date=datetime.now(), kwargs={'bot': bot})  # Антон приехал на работу
 
     scheduler.add_job(message_sending.new_year_delta_message_cron, trigger='cron', hour=20, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Предновогоднее сообщение

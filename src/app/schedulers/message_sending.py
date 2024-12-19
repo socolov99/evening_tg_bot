@@ -5,7 +5,7 @@ from datetime import datetime
 EXACTLY = 'ровно '
 
 
-def days_hours_to_new_year() -> dict:
+def time_to_new_year() -> dict:
     """Вычисляет dict с количеством дней и часов до Нового года."""
 
     now = datetime.now()
@@ -24,7 +24,7 @@ CHAT_ID = EVENING_CHAT_ID
 
 
 async def morning_message_cron(bot: Bot):
-    message_text = "Всем доброго утра !\nАнтон, ты членосос, завтра пиздуй на работу, хватит бухать"
+    message_text = "Всем доброго утра !\nАнтон, ебучий шакал, пиздуй на работу, и до ночи чтоб оттуда не вылазил"
     try:
         await bot.send_message(CHAT_ID, message_text)
     except Exception as e:
@@ -32,15 +32,10 @@ async def morning_message_cron(bot: Bot):
 
 
 async def new_year_delta_message_cron(bot: Bot):
-    days = days_hours_to_new_year().get('days')
-    hours = days_hours_to_new_year().get('hours')
-    if hours == 0:
-        exactly_word = 'EXACTLY'
-        addition_str = ''
-    else:
-        exactly_word = ''
-        addition_str = f" и {hours} часов"
-    message_text = f"До нового года осталось {exactly_word}{days} дн.{addition_str}"
+    days = time_to_new_year().get('days')
+    hours = time_to_new_year().get('hours')
+
+    message_text = f"До нового года осталось {days} дн., {hours} ч."
     try:
         await bot.send_message(CHAT_ID, message_text)
     except Exception as e:

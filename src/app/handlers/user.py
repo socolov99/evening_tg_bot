@@ -114,7 +114,7 @@ async def month_stats_handler(callback_query: CallbackQuery):
     month_stats = await get_month_drink_stats()
     month_stats_list = list(month_stats)
     if len(month_stats_list) > 0:
-        message_text = f"Статистика за {month_name} (за {month_day} дн) \n-----------------------------------\nПользователь; дней пил; %\n-----------------------------------\n"
+        message_text = f"Статистика за {month_name} (дней: {month_day}) \n-----------------------------------\nПользователь; дней пил; %\n-----------------------------------\n"
         for index, month_stats_element in enumerate(month_stats_list):
             message_text += f"{index + 1}) {month_stats_element.user_name}; {month_stats_element.drink_days_qty} дн.; {round(100 * month_stats_element.drink_days_qty / month_day)} % \n"
     else:

@@ -22,9 +22,11 @@ def start_scheduler(bot: Bot):
     scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=10, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
 
-    scheduler.add_job(message_sending.new_year_delta_message_cron, trigger='cron', hour=0, minute=0,
+    scheduler.add_job(message_sending.new_year_delta_message_cron, trigger='cron', hour=20, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Предновогоднее сообщение
     scheduler.add_job(message_sending.new_year_delta_message_cron, trigger='cron', hour=12, minute=0,
+                      start_date=datetime.now(), kwargs={'bot': bot})  # Предновогоднее сообщение
+    scheduler.add_job(message_sending.new_year_delta_message_cron, trigger='cron', hour=0, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Предновогоднее сообщение
 
     scheduler.start()

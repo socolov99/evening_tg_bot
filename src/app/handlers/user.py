@@ -110,7 +110,6 @@ async def month_stats_handler(callback_query: CallbackQuery):
     month_number = now.month
     month_day = now.day
     month_name = MONTH_NAMES_DICT.get(month_number)
-    month_days_qty = calendar.monthrange(now.year, month_number)[1]
     month_stats = await get_month_drink_stats()
     month_stats_list = list(month_stats)
     if len(month_stats_list) > 0:

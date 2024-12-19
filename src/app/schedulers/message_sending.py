@@ -39,6 +39,22 @@ async def anton_start_working_message_cron(bot: Bot):
         print(f"Ошибка при отправке сообщения в чат: {e}")
 
 
+async def anton_eating_message_cron(bot: Bot):
+    message_text = "Антох, сходи поешь, тебе еще долго РАБствовать"
+    try:
+        await bot.send_message(CHAT_ID, message_text)
+    except Exception as e:
+        print(f"Ошибка при отправке сообщения в чат: {e}")
+
+
+async def anton_working_message_cron(bot: Bot):
+    message_text = "Антоша, РАБ сраный, работай - солнце еще высоко !"
+    try:
+        await bot.send_message(CHAT_ID, message_text)
+    except Exception as e:
+        print(f"Ошибка при отправке сообщения в чат: {e}")
+
+
 async def new_year_delta_message_cron(bot: Bot):
     days = time_to_new_year().get('days')
     hours = time_to_new_year().get('hours') + 1

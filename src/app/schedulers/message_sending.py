@@ -24,7 +24,14 @@ CHAT_ID = EVENING_CHAT_ID
 
 
 async def morning_message_cron(bot: Bot):
-    message_text = "Всем доброго утра !\nАнтон, ебучий шакал, пиздуй на работу, и до ночи чтоб оттуда не вылазил"
+    message_text = "Всем доброго утра !\nАнтон, членосос, вставай и пиздуй в вонючем вагоне в свой офис !"
+    try:
+        await bot.send_message(CHAT_ID, message_text)
+    except Exception as e:
+        print(f"Ошибка при отправке сообщения в чат: {e}")
+
+async def anton_start_working_message_cron(bot: Bot):
+    message_text = "Антон, раб ебаный, я надеюсь ты уже в офисе ?! "
     try:
         await bot.send_message(CHAT_ID, message_text)
     except Exception as e:
@@ -33,7 +40,7 @@ async def morning_message_cron(bot: Bot):
 
 async def new_year_delta_message_cron(bot: Bot):
     days = time_to_new_year().get('days')
-    hours = time_to_new_year().get('hours')
+    hours = time_to_new_year().get('hours') + 1
 
     message_text = f"До нового года осталось {days} дн., {hours} ч."
     try:

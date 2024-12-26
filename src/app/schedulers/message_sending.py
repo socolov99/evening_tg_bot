@@ -65,7 +65,12 @@ async def pasha_comes_delta_message_cron(bot: Bot):
     days = time_to_pasha_comes().get('days')
     hours = 24 * days + time_to_pasha_comes().get('hours') + 1
 
-    message_text = f"До приезда Паши осталось {hours} ч."
+    if hours == 0:
+        message_text = "Паша в городе !!! Всем приготовиться пить и заниматься непотребством"
+    elif hours > 0:
+        message_text = f"До приезда Паши осталось {hours} ч."
+    else:
+        message_text = ''
     try:
         await bot.send_message(CHAT_ID, message_text)
     except Exception as e:

@@ -22,19 +22,6 @@ def start_scheduler(bot: Bot):
     scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=8, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
 
-    scheduler.add_job(message_sending.pasha_comes_delta_message_cron, trigger='cron', hour=17, minute=0,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Приезд Паши
-    scheduler.add_job(message_sending.pasha_comes_delta_message_cron, trigger='cron', hour=21, minute=0,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Приезд Паши
-    scheduler.add_job(message_sending.pasha_comes_delta_message_cron, trigger='cron', hour=0, minute=0,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Приезд Паши
-    scheduler.add_job(message_sending.pasha_comes_delta_message_cron, trigger='cron', hour=10, minute=0,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Приезд Паши
-    scheduler.add_job(message_sending.pasha_comes_delta_message_cron, trigger='cron', hour=13, minute=0,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Приезд Паши
-
-
-
     scheduler.start()
 
 

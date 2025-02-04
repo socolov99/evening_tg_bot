@@ -24,6 +24,8 @@ MONTH_NAMES_DICT = {
     12: "Декабрь"
 }
 
+NOT_DRINKING_TG_ID_LIST = [5352646861, 5043371081]  # Вова
+
 user_router = Router()
 
 
@@ -35,7 +37,7 @@ async def cmd_start(message: Message):
     await message.answer(f"Привет {request_user_name} !", reply_markup=kb.main)
 
 
-@user_router.callback_query(F.data == "add_frink_info")
+@user_router.callback_query(F.data == "add_drink_info")
 async def user_drink(callback_query: CallbackQuery):
     await set_user(callback_query.from_user.id, callback_query.from_user.username)
     await callback_query.message.answer("Выбери дату:", reply_markup=await DialogCalendar().start_calendar())
@@ -46,15 +48,18 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
     is_selected, selected_date = await DialogCalendar().process_selection(callback_query, callback_data)
     if is_selected:
         user = await get_user(callback_query.from_user.id)
-        if selected_date <= datetime.now():
-            await add_user_drink(user.id, selected_date)
-            answer_text = (
-                "Сюююююююда!!! Правильно, сегодня отдыхаем"
-                if selected_date.strftime('%Y-%m-%d') == datetime.now().strftime('%Y-%m-%d')
-                else "Одобряю твой поступок"
-            )
+        if user.tg_id in NOT_DRINKING_TG_ID_LIST:
+            answer_text = f"{user.user_full_name}, не наёбывай ! Мы знаем что ты не пил"
         else:
-            answer_text = "Я так понимаю ты рассказал мне о своих планах, но все же выбери уже наступившую дату"
+            if selected_date <= datetime.now():
+                await add_user_drink(user_id=user.id, action_dt=selected_date)
+                answer_text = (
+                    f"Сюююююююда!!! Правильно {user.user_full_name}, сегодня отдыхаем"
+                    if selected_date.strftime('%Y-%m-%d') == datetime.now().strftime('%Y-%m-%d')
+                    else f"Одобряю твой поступок, {user.user_full_name}"
+                )
+            else:
+                answer_text = "Я так понимаю ты рассказал мне о своих планах, но все же выбери уже наступившую дату"
         await callback_query.message.answer(answer_text, reply_markup=kb.main)
 
 

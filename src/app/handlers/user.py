@@ -1,10 +1,11 @@
+from datetime import datetime
+
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 from aiogram.filters.callback_data import CallbackData
+from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import DialogCalendar, DialogCalendarCallback
-from datetime import datetime
-import calendar
+
 import src.app.keyboards.kb as kb
 from src.database.requests import (set_user, get_user, add_user_drink, get_user_drinks, get_drink_board,
                                    get_month_drink_stats)
@@ -24,7 +25,7 @@ MONTH_NAMES_DICT = {
     12: "Декабрь"
 }
 
-NOT_DRINKING_TG_ID_LIST = [5352646861, 5043371081]  # Вова
+NOT_DRINKING_TG_ID_LIST = [5352646861]  # Вова
 
 user_router = Router()
 
@@ -40,6 +41,31 @@ async def cmd_start(message: Message):
 @user_router.callback_query(F.data == "add_drink_info")
 async def user_drink(callback_query: CallbackQuery):
     await set_user(callback_query.from_user.id, callback_query.from_user.username)
+    user = await get_user(callback_query.from_user.id)
+    request_user_name = user.user_full_name if user.user_full_name is not None else user.tg_name
+    await callback_query.message.answer(f"{request_user_name}, когда ты пил ?", reply_markup=kb.drink)
+
+
+@user_router.callback_query(F.data == "main")
+async def user_drink_date(callback_query: CallbackQuery):
+    await callback_query.message.answer("Главное меню", reply_markup=kb.main)
+
+
+@user_router.callback_query(F.data == "add_drink_today_info")
+async def user_drink_date(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
+    user = await get_user(callback_query.from_user.id)
+    if user.tg_id in NOT_DRINKING_TG_ID_LIST:
+        answer_text = f"{user.user_full_name}, не наёбывай ! Мы знаем что ты не пил"
+    else:
+        await add_user_drink(user_id=user.id, action_dt=datetime.now())
+        answer_text = f"Сюююююююда!!! Правильно, {user.user_full_name}, сегодня отдыхаем"
+    await callback_query.message.answer(answer_text, reply_markup=kb.main)
+
+
+@user_router.callback_query(F.data == "add_drink_date_info")
+async def user_drink_date(callback_query: CallbackQuery):
+    await set_user(callback_query.from_user.id, callback_query.from_user.username)
     await callback_query.message.answer("Выбери дату:", reply_markup=await DialogCalendar().start_calendar())
 
 
@@ -54,7 +80,7 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
             if selected_date <= datetime.now():
                 await add_user_drink(user_id=user.id, action_dt=selected_date)
                 answer_text = (
-                    f"Сюююююююда!!! Правильно {user.user_full_name}, сегодня отдыхаем"
+                    f"Сюююююююда!!! Правильно, {user.user_full_name}, сегодня отдыхаем"
                     if selected_date.strftime('%Y-%m-%d') == datetime.now().strftime('%Y-%m-%d')
                     else f"Одобряю твой поступок, {user.user_full_name}"
                 )
@@ -74,7 +100,7 @@ async def mystats_handler(callback_query: CallbackQuery):
         for drink_day in drink_unique_days_list:
             message_text += f"{drink_day}\n"
     else:
-        message_text = 'Я не знаю когда ты пил... Пора это исправлять.\nКогда выпьешь, нажми на кнопку "Я выпил"'
+        message_text = 'Я не знаю когда ты пил... Пора это исправлять.\nКогда выпьешь, нажми на кнопку "Я выпил!"'
     await callback_query.message.answer(message_text, reply_markup=kb.main)
 
 

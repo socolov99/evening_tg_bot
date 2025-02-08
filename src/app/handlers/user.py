@@ -10,20 +10,7 @@ import src.app.keyboards.kb as kb
 from src.database.requests import (set_user, get_user, add_user_drink, get_user_drinks, get_drink_board,
                                    get_month_drink_stats)
 
-MONTH_NAMES_DICT = {
-    1: "Январь",
-    2: "Февраль",
-    3: "Март",
-    4: "Апрель",
-    5: "Май",
-    6: "Июнь",
-    7: "Июль",
-    8: "Август",
-    9: "Сентябрь",
-    10: "Октябрь",
-    11: "Ноябрь",
-    12: "Декабрь"
-}
+from src.dicts.dict_loader import MONTH_NAMES_DICT
 
 NOT_DRINKING_TG_ID_LIST = [5352646861]  # Вова
 
@@ -140,7 +127,7 @@ async def month_stats_handler(callback_query: CallbackQuery):
     now = datetime.now()
     month_number = now.month
     month_day = now.day
-    month_name = MONTH_NAMES_DICT.get(month_number)
+    month_name = MONTH_NAMES_DICT.get(str(month_number))
     month_stats = await get_month_drink_stats()
     month_stats_list = list(month_stats)
     if len(month_stats_list) > 0:

@@ -12,7 +12,7 @@ from src.database.requests import (set_user, get_user, add_user_drink, get_user_
 
 from src.dicts.dict_loader import MONTH_NAMES_DICT
 
-NOT_DRINKING_TG_ID_LIST = [5352646861]  # Вова
+NOT_DRINKING_TG_ID_LIST = [5352646861, 448551378]  # Вова, Дема
 
 user_router = Router()
 

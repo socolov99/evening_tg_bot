@@ -115,7 +115,6 @@ async def sober_stats_handler(callback_query: CallbackQuery):
             message_text += f"""\n\n{", ".join(drunk_today_users_list)} - {message_suffix_you} сегодня хорош{message_suffix_i}, так держать !!!"""
         else:
             message_text += "\nСегодня еще никто не пил ? Займитесь делом !"
-        message_text += f"\n\n{stats_list[-1].user_name} занимается ерундой, пора выпить..."
     else:
         message_text = "Я пока не собрал статистику. Пьем активнее !"
     await callback_query.message.answer(message_text, reply_markup=kb.main)

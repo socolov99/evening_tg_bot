@@ -1,7 +1,7 @@
 from src.database.models import async_session
 from src.database.models import User, Action
 from sqlalchemy import select, desc, func, extract
-
+from datetime import datetime
 
 def connection(function):
     async def inner(*args, **kwargs):
@@ -63,14 +63,24 @@ async def get_drink_board(session):
 
 
 @connection
-async def get_month_drink_stats(session):
+async def get_month_drink_stats(session, month: int = None):
+    # Если месяц не передан, берем текущий месяц
+    if month is None:
+        month_filter = datetime.now().month
+        year_filter = datetime.now().year
+    else:
+        month_filter = month
+        year_filter = datetime.now().year
+
     month_actions = (
         select(
             Action.user_id, Action.action_dt
         )
-        .filter(Action.action_type == 'drink',
-                extract('month', Action.action_dt) == extract('month', func.now()),
-                extract('year', Action.action_dt) == extract('year', func.now()))
+        .filter(
+            Action.action_type == 'drink',
+            extract('month', Action.action_dt) == month_filter,
+            extract('year', Action.action_dt) == year_filter
+        )
         .subquery()
     )
 

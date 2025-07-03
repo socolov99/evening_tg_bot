@@ -1,0 +1,29 @@
+name: Deploy to Server via SSH
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 109.196.101.77 >> ~/.ssh/known_hosts
+
+      - name: Deploy application via SSH
+        run: |
+          ssh root@109.196.101.77 << 'EOF'
+            cd ~/tg_bots/evening_tg_bot/
+            git pull origin master
+            python3 -m pip install --upgrade pip
+            pip3 install -r requirements.txt
+            screen -S bot -X quit || true
+            screen -dmS bot python3 main.py
+          EOF

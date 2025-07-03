@@ -3,13 +3,14 @@ name: Deploy to Server via SSH
 on:
   push:
     branches:
-      - master
+      - master  # триггер при пуше в ветку master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Настройка SSH-доступа к серверу
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
@@ -17,13 +18,29 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 109.196.101.77 >> ~/.ssh/known_hosts
 
-      - name: Deploy application via SSH
+      # 2. Деплой на сервер
+      - name: Deploy via SSH
         run: |
           ssh root@109.196.101.77 << 'EOF'
+            # Переход в папку проекта
             cd ~/tg_bots/evening_tg_bot/
+
+            # Установка HTTPS-URL (на случай, если осталась SSH-ссылка)
+            git remote set-url origin https://github.com/socolov99/evening_tg_bot.git
+
+            # Обновление кода из ветки master
             git pull origin master
+
+            # Установка pip и зависимостей
+            apt update
+            apt install -y python3-pip
+
             python3 -m pip install --upgrade pip
             pip3 install -r requirements.txt
+
+            # Завершение предыдущей screen-сессии
             screen -S bot -X quit || true
+
+            # Запуск main.py в новой screen-сессии
             screen -dmS bot python3 main.py
           EOF

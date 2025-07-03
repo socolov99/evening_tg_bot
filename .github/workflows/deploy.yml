@@ -3,14 +3,13 @@ name: Deploy to Server via SSH
 on:
   push:
     branches:
-      - master  # триггер при пуше в ветку master
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Настройка SSH-доступа к серверу
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
@@ -18,29 +17,35 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 109.196.101.77 >> ~/.ssh/known_hosts
 
-      # 2. Деплой на сервер
       - name: Deploy via SSH
         run: |
           ssh root@109.196.101.77 << 'EOF'
-            # Переход в папку проекта
+            # Переход в директорию проекта
             cd ~/tg_bots/evening_tg_bot/
 
-            # Установка HTTPS-URL (на случай, если осталась SSH-ссылка)
+            # Меняем origin на HTTPS (один раз)
             git remote set-url origin https://github.com/socolov99/evening_tg_bot.git
 
-            # Обновление кода из ветки master
+            # Обновляем код
             git pull origin master
 
-            # Установка pip и зависимостей
+            # Устанавливаем pip, если нужно
             apt update
-            apt install -y python3-pip
+            apt install -y python3-pip python3-venv
 
-            python3 -m pip install --upgrade pip
-            pip3 install -r requirements.txt
+            # Создаём виртуальное окружение, если его нет
+            [ -d .venv ] || python3 -m venv .venv
 
-            # Завершение предыдущей screen-сессии
+            # Активируем виртуальное окружение
+            source .venv/bin/activate
+
+            # Обновляем pip внутри venv и ставим зависимости
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
+            # Завершаем старую screen-сессию
             screen -S bot -X quit || true
 
-            # Запуск main.py в новой screen-сессии
-            screen -dmS bot python3 main.py
+            # Запускаем main.py в новой screen-сессии с активированным venv
+            screen -dmS bot bash -c 'source .venv/bin/activate && python main.py'
           EOF

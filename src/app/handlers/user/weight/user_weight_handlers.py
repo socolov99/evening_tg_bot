@@ -41,24 +41,28 @@ async def user_weight_date(callback: CallbackQuery, state: FSMContext):
     await state.update_data(date_chosen=False)
 
 
-@user_weight_router.message(F.text.regexp(r'^\d+(\.\d+)?$'))
+@user_weight_router.message(F.text.regexp(r'^\d+([.,]\d+)?$'))
 async def weight_received(message: Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state != WeightInput.waiting_for_weight:
+        await state.clear()
         return
     data = await state.get_data()
     if not data.get("date_chosen"):
+        await state.clear()
         await message.answer("Сначала выберите дату через календарь.")
         return
 
-    weight_value = float(message.text)
+    weight_value = float(message.text.replace(",", "."))
     selected_date = data["selected_date"]
 
     user = await get_user(message.from_user.id)
+    request_user_name = user.user_full_name if user.user_full_name is not None else user.tg_name
     await add_user_weight(user_id=user.id, action_dt=selected_date, weight_value=weight_value)
 
-    await message.answer(f"✅ Вес {weight_value} кг на дату {selected_date.strftime('%Y-%m-%d')} записан",
-                         reply_markup=kb.main)
+    await message.answer(
+        f"✅ {request_user_name}, твой вес {weight_value} кг на дату {selected_date.strftime('%Y-%m-%d')} записан",
+        reply_markup=kb.main)
     await state.clear()
 
 

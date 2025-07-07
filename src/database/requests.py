@@ -3,6 +3,7 @@ from src.database.models import User, Action
 from sqlalchemy import select, desc, func, extract
 from datetime import datetime
 
+
 def connection(function):
     async def inner(*args, **kwargs):
         async with async_session() as session:
@@ -31,12 +32,47 @@ async def add_user_drink(session, user_id, action_dt):
 
 
 @connection
+async def add_user_weight(session, user_id, action_dt, weight_value):
+    session.add(Action(user_id=user_id, action_type="weight", action_value=weight_value, action_dt=action_dt))
+    await session.commit()
+
+
+@connection
+async def get_user_last_15_weight_stats(session, user_id):
+    subquery = (
+        select(
+            Action.action_dt,
+            func.max(Action.action_reg_dt).label('max_action_reg_dt')
+        )
+        .where(Action.user_id == user_id)
+        .where(Action.action_type == "weight")
+        .group_by(Action.action_dt)
+        .subquery()
+    )
+    result = await session.execute(
+        select(
+            Action.action_dt,
+            Action.action_value
+        )
+        .join(subquery,
+              (Action.action_dt == subquery.c.action_dt) & (Action.action_reg_dt == subquery.c.max_action_reg_dt))
+        .where(Action.user_id == user_id)
+        .where(Action.action_type == "weight")
+        .order_by(Action.action_dt.desc())
+        .limit(15)
+    )
+    return result
+
+
+@connection
 async def get_user_drinks(session, user_id):
     result = await session.execute(
         select(
-            func.distinct(Action.action_dt).label("action_dt")
+            func.date(Action.action_dt).label("action_dt")
         )
-        .where(Action.user_id == user_id and Action.action_type == "drink")
+        .where(Action.user_id == user_id)
+        .where(Action.action_type == 'drink')
+        .distinct()
         .order_by(desc("action_dt"))
         .limit(15)
     )

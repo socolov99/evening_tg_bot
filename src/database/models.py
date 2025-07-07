@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import ForeignKey, String, BigInteger, Date, DateTime, func
+from sqlalchemy import ForeignKey, String, BigInteger, Float, Date, DateTime, func
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine, AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.schema import CreateSchema
@@ -38,7 +38,8 @@ class User(Base):
     points = mapped_column(BigInteger, default=0, nullable=False)
 
     def __str__(self):
-        return f"id: {self.id}, tg_id: {self.tg_id}, tg_name:{self.tg_name}, user_full_name: {self.user_full_name}, register_dt:{self.register_dt}, points: {self.points}"
+        return (f"id: {self.id}, tg_id: {self.tg_id}, tg_name:{self.tg_name}, "
+                f"user_full_name: {self.user_full_name}, register_dt:{self.register_dt}, points: {self.points}")
 
 
 class Action(Base):
@@ -51,11 +52,12 @@ class Action(Base):
     user_description = mapped_column(String(255))
     action_dt = mapped_column(Date, default=func.now(), nullable=False)
     action_reg_dt = mapped_column(DateTime, default=func.now(), nullable=False)
+    action_value = mapped_column(Float)
 
     def __str__(self):
         return (f'id:{self.id}, user_id:{self.user_id}, action_type:{self.action_type}, '
                 f'user_description:{self.user_description}, action_dt:{self.action_dt}, '
-                f'action_reg_dt:{self.action_reg_dt}')
+                f'action_reg_dt:{self.action_reg_dt}, action_value:{self.action_value}')
 
 
 async def async_main():

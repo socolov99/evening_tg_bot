@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
-
-from src.app.handlers.user import user_router
-from src.app.handlers.admin import admin_router
+from src.app.handlers.common.calendar import calendar_router
+from src.app.handlers.admin.admin import admin_router
+from src.app.handlers.user.drink.user_drink_handlers import user_drink_router
+from src.app.handlers.user.weight.user_weight_handlers import user_weight_router
 from src.database.models import async_main
 from src.app.schedulers import message_sending
 
@@ -27,7 +28,7 @@ def start_scheduler(bot: Bot):
     scheduler.start()
 
 
-async def on_startup(dispatcher: Dispatcher):
+async def on_startup():
     await async_main()
 
 
@@ -35,7 +36,7 @@ async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
     start_scheduler(bot)
-    dp.include_routers(user_router, admin_router)
+    dp.include_routers(user_drink_router, user_weight_router, calendar_router, admin_router)
     dp.startup.register(on_startup)
     await dp.start_polling(bot)
 

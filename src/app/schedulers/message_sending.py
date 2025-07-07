@@ -14,7 +14,7 @@ async def morning_message_cron(bot: Bot):
 
 
 async def demin_max_message_cron(bot: Bot):
-    message_text = "Напоминаю, Дема - нерукопожатный пидорас!\n#ГЛАВШПАН"
+    message_text = "Я вновь всем напоминаю, Дема - нерукопожатный пидорас! Не забывайте об этом.\n#ГЛАВШПАН"
     try:
         await bot.send_message(CHAT_ID, message_text)
     except Exception as e:

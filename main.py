@@ -22,8 +22,10 @@ def start_scheduler(bot: Bot):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(message_sending.morning_message_cron, trigger='cron', hour=8, minute=0,
                       start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
-    scheduler.add_job(message_sending.demin_max_message_cron, trigger='cron', hour=16, minute=30,
-                      start_date=datetime.now(), kwargs={'bot': bot})  # Утреннее сообщение
+    scheduler.add_job(message_sending.demin_max_message_cron_16_30, trigger='cron', hour=16, minute=30,
+                      start_date=datetime.now(), kwargs={'bot': bot})  # Дневное сообщение
+    scheduler.add_job(message_sending.demin_max_message_cron_20_00, trigger='cron', hour=20, minute=0,
+                      start_date=datetime.now(), kwargs={'bot': bot})  # Вечернее сообщение
 
     scheduler.start()
 
